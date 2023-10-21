@@ -8,7 +8,8 @@ class Hero():
         self.hero.reparentTo(render)
         self.cameraBind()
         self.accept_events()
-
+        self.mode = True
+        
     def cameraBind(self):
         base.camera.reparentTo(self.hero)
         base.camera.setPos(0, 0, 1)
@@ -87,3 +88,11 @@ class Hero():
         base.accept('n-repeat', self.turn_left)
         base.accept('m', self.turn_right)
         base.accept('m-repeat', self.turn_right)
+        base.accept("w", self.forward)
+        base.accept('w-repeat', self.forward)
+        base.accept("s", self.back)
+        base.accept('s-repeat', self.back)
+        base.accept("a", self.left)
+        base.accept('a-repeat', self.left)
+        base.accept("d", self.right)
+        base.accept('d-repeat', self.right)
