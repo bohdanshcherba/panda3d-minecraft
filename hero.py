@@ -9,12 +9,12 @@ class Hero():
         self.cameraBind()
         self.accept_events()
         self.mode = True
-        
+
     def cameraBind(self):
         base.camera.reparentTo(self.hero)
         base.camera.setPos(0, 0, 1)
         base.disableMouse()
-        base.camera.setH(0)
+        base.camera.setH(180)
         self.cameraOn = True
     
     def cameraUp(self):
@@ -63,36 +63,96 @@ class Hero():
         pos = self.look_at(angle)
         self.hero.setPos(pos)
 
+    def try_move(self, angle):
+        pos = self.look_at(angle)
+
+        if self.land.isEmpty(pos):
+            pos = self.land.findHighestEmpty(pos)
+            self.hero.setPos(pos)
+        
+        else:
+            pos = pos[0], pos[1], pos[2] + 1
+            if self.land.isEmpty(pos):
+                self.hero.setPos(pos)
+        
+
     def move_to(self, angle):
         if self.mode:
             self.just_move(angle)
+        else: 
+            self.try_move(angle)
 
     def forward(self):
         angle = self.hero.getH() % 360
         self.move_to(angle)
 
     def back(self):
-        angle = (self.hero.getH()+180) % 360
+        angle = (self.hero.getH() - 180 ) % 360
         self.move_to(angle)
 
     def left(self):
-        angle = (self.hero.getH()-90) % 360
+        angle = (self.hero.getH() - 90 ) % 360
         self.move_to(angle)
 
     def right(self):
-        angle = (self.hero.getH()+90) % 360
+        angle = (self.hero.getH() + 90) % 360
         self.move_to(angle)
+
+    def up(self):
+        if self.mode:
+            self.hero.setZ(self.hero.getZ()+1)
+
+    def down(self):
+        if self.mode and self.hero.getZ() > 1:
+            self.hero.setZ(self.hero.getZ()-1)
+
+    def change_mode(self):
+        self.mode = not self.mode
+
+    def build(self):
+        angle = self.hero.getH() % 360
+        pos = self.look_at(angle)
+        if self.mode:
+            self.land.addBlock(pos, "block")
+        else:
+            self.land.buildBlock(pos)
+
+    def destroy(self):
+        angle = self.hero.getH() % 360
+        pos = self.look_at(angle)
+        if self.mode:
+            self.land.delBlock(pos)
+        else:
+            self.land.delBlockFrom(pos)
+        
 
     def accept_events(self):
         base.accept('n', self.turn_left)
         base.accept('n-repeat', self.turn_left)
         base.accept('m', self.turn_right)
         base.accept('m-repeat', self.turn_right)
+
         base.accept("w", self.forward)
         base.accept('w-repeat', self.forward)
+
         base.accept("s", self.back)
         base.accept('s-repeat', self.back)
+
         base.accept("a", self.left)
         base.accept('a-repeat', self.left)
+
         base.accept("d", self.right)
         base.accept('d-repeat', self.right)
+
+        base.accept("q", self.up)
+        base.accept('q-repeat', self.up)
+        base.accept("e", self.down)
+        base.accept('e-repeat', self.down)
+
+        base.accept('z', self.change_mode)
+
+        base.accept('f', self.build)
+        base.accept('r', self.destroy)
+
+        
+        
